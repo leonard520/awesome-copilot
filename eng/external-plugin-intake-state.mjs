@@ -3,6 +3,10 @@ export const EXTERNAL_PLUGIN_INTAKE_LABELS = Object.freeze({
     color: "FEF2C0",
     description: "Public external plugin submission",
   },
+  "external-plugin-canvas": {
+    color: "1D76DB",
+    description: "External plugin submission includes a canvas extension",
+  },
   "awaiting-review": {
     color: "FBCA04",
     description: "Submission is waiting for automated intake validation",
@@ -27,27 +31,12 @@ export const EXTERNAL_PLUGIN_INTAKE_LABELS = Object.freeze({
 
 const EXTERNAL_PLUGIN_INTAKE_SYNC_LABELS = Object.freeze([
   "external-plugin",
+  "external-plugin-canvas",
   "awaiting-review",
   "ready-for-review",
   "requires-submitter-fixes",
   "rejected",
 ]);
-
-async function ensureLabel({ github, owner, repo, name, config }) {
-  try {
-    await github.rest.issues.createLabel({
-      owner,
-      repo,
-      name,
-      color: config.color,
-      description: config.description,
-    });
-  } catch (error) {
-    if (error.status !== 422) {
-      throw error;
-    }
-  }
-}
 
 async function removeLabel({ github, owner, repo, issueNumber, name }) {
   try {
@@ -65,12 +54,6 @@ async function removeLabel({ github, owner, repo, issueNumber, name }) {
 }
 
 export async function syncExternalPluginIntakeLabels({ github, owner, repo, issueNumber, desiredLabels }) {
-  await Promise.all(
-    Object.entries(EXTERNAL_PLUGIN_INTAKE_LABELS).map(([name, config]) =>
-      ensureLabel({ github, owner, repo, name, config })
-    )
-  );
-
   const currentLabels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
     owner,
     repo,
@@ -151,6 +134,9 @@ export async function applyExternalPluginIntakeEvaluation({
     rejected: new Set(["external-plugin", "rejected"]),
   };
   const desiredLabels = desiredLabelsByState[state] ?? desiredLabelsByState.rejected;
+  if (evaluation.isCanvasPlugin) {
+    desiredLabels.add("external-plugin-canvas");
+  }
 
   await syncExternalPluginIntakeLabels({
     github,
