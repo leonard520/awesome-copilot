@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-07-18
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -29,12 +29,14 @@ Think of the main agent as a project lead and subagents as focused contributors:
 | Topic | Agent | Subagent |
 |------|------|------|
 | How it starts | Selected by the user or configured for the workflow | Launched by another agent or orchestrator |
-| Lifetime | Persists across the main conversation or session | Temporary; exists only for the delegated task |
+| Lifetime | Persists across the main conversation or session | Long-lived by default; you can send follow-up messages to a running subagent |
 | Context | Carries the broader conversation and goals | Gets a narrower prompt and its own isolated context |
 | Scope | Coordinates the whole task | Performs one focused piece of work |
 | Output | Talks directly with the user | Reports back to the main agent, which synthesizes the result |
 
 In practice, the main agent keeps the big picture while subagents absorb the noisy intermediate work: research, code inspection, specialized review passes, or independent implementation tracks.
+
+> **Multi-turn subagents (v1.0.72+)**: Subagents are now long-lived by default. You can send follow-up messages to a running subagent at any time — steering it mid-task, asking for status, or refining scope — without waiting for it to finish. This makes subagents more like collaborators you can direct, rather than one-shot workers you dispatch and wait for.
 
 ## What changes when work moves to a subagent
 
@@ -211,6 +213,8 @@ No. They can run sequentially when one step depends on another, or in parallel w
 **Can I control how many subagents run simultaneously?**
 
 Yes. In v1.0.66+, usage-based billing users can configure **subagent concurrency and depth limits** directly from `/settings`. The concurrency limit controls how many subagents run in parallel; the depth limit controls how many levels deep delegation can chain (preventing runaway recursive subagent trees). These settings give you predictable control over resource consumption during complex orchestrated tasks.
+
+The default maximum sub-agent nesting depth was lowered from 6 to 4 in v1.0.71 to curb runaway recursive delegation. Usage-based billing users can still raise `subagents.maxDepth` (up to 128) in `/settings` if your workflows require deeper nesting.
 
 ## Next steps
 

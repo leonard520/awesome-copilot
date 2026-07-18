@@ -3,7 +3,7 @@ title: 'Working with Canvas Extensions'
 description: 'Create and iterate on GitHub Copilot app canvases using /create-canvas, then shape them into reusable project or personal extensions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-07-18
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -132,6 +132,17 @@ Treat the first `/create-canvas` result as version one. Then refine in-place:
 - Keep capability names clear and action-oriented
 
 The fastest loop is: **use the canvas**, note friction, and ask the agent for a targeted update.
+
+## Canvas extensions in Copilot CLI (v1.0.71+)
+
+Canvas support is no longer exclusive to the GitHub Copilot app — as of v1.0.71, canvas extensions work directly in **Copilot CLI** as well. This means any canvas extension you've authored (or installed as a plugin) can render and respond to agent actions from the terminal.
+
+When a canvas extension is active in a CLI session, the agent can call canvas capabilities exactly as it does in the app. The extension's `joinSession` / `createCanvas` contract remains the same — the surface is different, but the programming model is identical.
+
+**What this means in practice:**
+- Canvas-backed tools (triage boards, planning surfaces, custom UIs) are now portable between the Copilot app and CLI sessions.
+- Extensions you build for the app work in the CLI without modification, as long as they don't rely on app-specific UI affordances.
+- You can test canvas extensions locally using `copilot --plugin-dir <your-extension-folder>` before publishing to a marketplace.
 
 ## Next steps
 
