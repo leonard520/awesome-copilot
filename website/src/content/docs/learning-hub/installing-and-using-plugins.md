@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-19
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -221,6 +221,26 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+### Targeted Component Flags (v1.0.72+)
+
+When installing or removing plugins, you can target specific components using flags:
+
+```bash
+# Install only a specific MCP server from a plugin
+copilot plugin install my-plugin@awesome-copilot --mcp
+
+# Install only a specific skill from a plugin
+copilot plugin install my-plugin@awesome-copilot --skill
+
+# Install only a specific agent from a plugin
+copilot plugin install my-plugin@awesome-copilot --plugin
+
+# Remove a specific skill from an installed plugin
+copilot plugins remove my-plugin --skill my-skill-name
+```
+
+These flags are useful when you want to selectively adopt only certain components from a plugin rather than installing the entire bundle.
 
 ### Loading Plugins from a Local Directory
 
