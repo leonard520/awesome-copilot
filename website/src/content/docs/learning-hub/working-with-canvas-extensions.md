@@ -3,7 +3,7 @@ title: 'Working with Canvas Extensions'
 description: 'Create and iterate on GitHub Copilot app canvases using /create-canvas, then shape them into reusable project or personal extensions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-07-21
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -121,6 +121,16 @@ Use these extension folders as concrete references:
 - [`Agent Arcade`](../../extensions/#agent-arcade-canvas): retro arcade canvas with agent-callable controls for choosing or restarting mini-games while agents work.
 
 These examples show different complexity levels, from focused workflow boards to richer UI + automation integrations.
+
+## Canvas support in Copilot CLI (v1.0.71+)
+
+Canvas extensions are no longer limited to the GitHub Copilot app. As of v1.0.71, the Copilot CLI also supports canvas extensions for extension-driven interactions. This means:
+
+- Canvas extensions you build can surface in both the app and CLI sessions
+- Extension developers can write a single canvas extension that works across both surfaces
+- CLI users gain access to the same interactive work surfaces without needing to switch to the app
+
+CLI canvas support is opt-in via the extension itself — no additional configuration is needed from the user beyond having the extension installed.
 
 ## Iterating after first creation
 
