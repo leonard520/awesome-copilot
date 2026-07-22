@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-22
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -94,7 +94,7 @@ Hooks can trigger on several lifecycle events:
 | `postToolUse` | After a tool **successfully** completes execution | Log results, track usage, format code after edits |
 | `postToolUseFailure` | When a tool call **fails with an error** | Log errors for debugging, send failure alerts, track error patterns |
 | `PermissionRequest` | When the CLI shows a **permission prompt** to the user | Programmatically approve or deny permission requests, enable auto-approval in CI/headless environments |
-| `agentStop` | Main agent finishes responding to a prompt | Run final linters/formatters, validate complete changes |
+| `agentStop` | Main agent finishes responding to a prompt | Run final linters/formatters, validate complete changes. Receives a `stop_hook_active` flag (v1.0.72+) to detect when the CLI is forcing continuation after repeated blocks. |
 | `preCompact` | Before the agent compacts its context window | Save a snapshot, log compaction event, run summary scripts |
 | `subagentStart` | A subagent is spawned by the main agent | Inject additional context into the subagent's prompt, log subagent launches |
 | `subagentStop` | A subagent completes before returning results | Audit subagent outputs, log subagent activity |
@@ -368,6 +368,12 @@ Run ESLint after the agent finishes responding and block if there are errors:
 ```
 
 If the lint command exits with a non-zero status, the action is blocked.
+
+> **`stop_hook_active` flag (v1.0.72+)**: If an `agentStop` hook repeatedly blocks the turn (e.g., always exits non-zero), the CLI will force continuation after **8 consecutive blocks** to prevent an infinite loop. When this happens, the hook receives `"stop_hook_active": true` in its JSON input so it can detect the forced continuation and self-limit its behavior rather than blocking indefinitely.
+
+### Session Directory in Hooks (v1.0.72+)
+
+Lifecycle and subagent hook commands now run in the **current session directory** after a `/cd` command. This means if your session changes to a subdirectory, hook scripts that use relative paths will resolve relative to that directory — the same directory the agent is working in. This makes hooks behave predictably in multi-directory workflows.
 
 ### Security Gating with preToolUse
 

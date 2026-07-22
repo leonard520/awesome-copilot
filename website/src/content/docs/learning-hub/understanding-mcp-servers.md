@@ -3,7 +3,7 @@ title: 'Understanding MCP Servers'
 description: 'Learn how Model Context Protocol servers extend GitHub Copilot with access to external tools, databases, and APIs.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-22
 estimatedReadingTime: '8 minutes'
 tags:
   - mcp
@@ -314,6 +314,10 @@ For example, a PostgreSQL server that can't connect because `DATABASE_URL` is no
 ```
 
 You can also open the `/mcp` manager while the agent is working to toggle servers on or off mid-turn. Add, edit, delete, and re-auth actions wait until the turn finishes, but enabling or disabling a server takes effect immediately.
+
+> **Deleting an MCP server (v1.0.72+)**: When you delete an MCP server with `/mcp delete`, the CLI now **stops the server's running background process** immediately — previously, the process would continue running until you restarted the CLI. This ensures that deleted servers are fully cleaned up without requiring a restart.
+
+> **Toggling `/sandbox` and MCP servers (v1.0.72+)**: Toggling the OS sandbox on or off with `/sandbox` now **restarts only local MCP servers** and leaves remote servers connected. This avoids unnecessary reconnections to remote servers when you're only adjusting the local sandbox policy.
 
 **Toggling servers on and off** (v1.0.66+): From the `/mcp` list view, you can **enable or disable individual MCP servers** without editing your config file. Select a server in the list and toggle it — disabled servers won't start in future sessions and their tools won't be available to agents. This is useful for temporarily disabling a server that's causing slowdowns or errors without removing it from your configuration entirely.
 
