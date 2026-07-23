@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-07-23
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -134,6 +134,8 @@ The important behavior is different from a single chat turn:
 
 That makes `/fleet` a practical way to launch subagents even if you are not authoring custom agent files yourself.
 
+> **Multi-turn subagents (v1.0.72+)**: Multi-turn subagents are now **always enabled** — you can send follow-up messages to a running subagent without any extra configuration. Previously this was opt-in. The `/tasks` panel shows the full prompt and response history for each subagent turn.
+
 ### Rubber-duck agent
 
 Available in `/experimental` (v1.0.42+), the **rubber-duck agent** applies a novel multi-model pattern: when you're working in a GPT-powered session, the rubber-duck agent internally routes certain requests through Claude to provide a second perspective. The idea is similar to rubber-duck debugging — talking through a problem with a different "listener" often surfaces assumptions or blind spots you didn't notice.
@@ -211,6 +213,8 @@ No. They can run sequentially when one step depends on another, or in parallel w
 **Can I control how many subagents run simultaneously?**
 
 Yes. In v1.0.66+, usage-based billing users can configure **subagent concurrency and depth limits** directly from `/settings`. The concurrency limit controls how many subagents run in parallel; the depth limit controls how many levels deep delegation can chain (preventing runaway recursive subagent trees). These settings give you predictable control over resource consumption during complex orchestrated tasks.
+
+*(v1.0.72+)* The **default maximum nesting depth** was reduced from 6 to 4 to curb runaway recursive subagent delegation. Usage-based billing users can still adjust `subagents.maxDepth` (up to 128) in `/settings` if your workflows require deeper chains.
 
 ## Next steps
 

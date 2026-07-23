@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-23
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -449,6 +449,25 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
 
+**Session-only model override** *(v1.0.72+)*: Use `/model --session` (or `-s`) to change the model, reasoning effort, or context window for only the current session, leaving your global settings unchanged. The change reverts when you start a new session:
+
+```
+/model --session claude-opus-4-5           # use a different model for this session only
+/model -s                                  # open the session-only model picker
+```
+
+This is especially useful when you want to try a more capable (or more cost-efficient) model for a specific task without permanently changing your default.
+
+**Plan mode model** *(v1.0.74+)*: Use `/model plan` (or `/model --plan`) to set a separate model that is used only while you are in plan mode. Pass a model ID, `off` to clear it, or no argument to open the picker:
+
+```
+/model plan claude-sonnet-4-5              # use sonnet for planning
+/model --plan                              # open the plan-mode model picker
+/model plan off                            # revert to the session model for plan mode
+```
+
+When plan mode is active, the CLI switches to this model automatically. When you leave plan mode, it reverts to your session model. This lets you use a fast, cost-efficient model for exploratory planning and a more capable model for execution.
+
 ### CLI Session Commands
 
 The `/settings` command (v1.0.61+) opens an interactive dialog to browse and edit all user settings in one place. Use it to discover available settings, toggle options, and update values without manually editing your config file:
@@ -541,10 +560,18 @@ The `/cd` command changes the working directory for the current session. Since v
 
 This is useful when you have multiple backgrounded sessions each focused on a different project directory.
 
-The `/worktree` command (v1.0.61+, also aliased `/move`) creates a new git worktree and switches into it, moving any uncommitted changes along. This lets you start working on a parallel branch without leaving your current terminal session:
+The `/worktree` and `/move` commands let you create git worktrees and switch sessions without leaving your terminal — but they behave differently:
+
+| Command | Behaviour |
+|---------|-----------|
+| `/worktree <branch>` | Creates a new worktree and switches into it, **leaving uncommitted changes behind** in the original working directory |
+| `/move <branch>` | Creates a new worktree and **carries uncommitted changes into** the new worktree |
+
+> **Note (v1.0.71+)**: Prior to v1.0.71, `/move` was an alias for `/worktree` and both moved uncommitted changes. They are now separate commands with distinct behaviours. Use `/worktree` when you want to start fresh in the new branch; use `/move` when your local edits belong in the new branch.
 
 ```
-/worktree my-feature-branch
+/worktree my-feature-branch     # switch to new branch, keep changes here
+/move my-feature-branch         # carry uncommitted changes into new branch
 ```
 
 In v1.0.66+, you can pass a task description to `/worktree` to name the branch from the task and immediately run the task as the first prompt in the new worktree — all in one step:
@@ -555,7 +582,7 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
 
-After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
