@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-24
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -221,6 +221,42 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+### Installing, Enabling, and Removing Individual Skills (v1.0.72+)
+
+As of v1.0.72, you can also install, enable/disable, and remove individual **skills** directly from the CLI — without wrapping them in a full plugin:
+
+```bash
+# Install a skill from a local folder
+copilot plugins install --skill ./my-skill/
+
+# Install a skill from a URL or GitHub repo path
+copilot plugins install --skill https://example.com/my-skill.zip
+
+# Install into the current repository (project scope) instead of globally
+copilot plugins install --skill ./my-skill/ --scope project
+
+# List installed skills
+copilot skill list
+
+# Remove a skill
+copilot plugins remove --skill my-skill-name
+
+# Enable or disable a skill without removing it
+copilot plugins enable --skill my-skill-name
+copilot plugins disable --skill my-skill-name
+```
+
+The same `--mcp` flag works for MCP servers, and `--plugin` for plugins:
+
+```bash
+copilot plugins enable --mcp my-mcp-server
+copilot plugins disable --plugin my-plugin
+```
+
+### Open Plugin Spec v1 Support (v1.0.74+)
+
+GitHub Copilot CLI v1.0.74 added support for **Open Plugin Spec v1** plugin manifests. This means plugins authored for Claude Code (which also uses Open Plugin Spec) are directly compatible with Copilot CLI — you can install them from any marketplace without any manifest conversion. Additionally, repositories that contain an `mcp.json` file at their root are now automatically recognized as plugin sources, making it easier to share MCP server configurations as installable units.
 
 ### Loading Plugins from a Local Directory
 
