@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-25
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -468,6 +468,21 @@ The settings dialog supports search — type to filter settings by name. Changes
 /model --local      # view/edit your personal model preference
 ```
 
+*(v1.0.72+)* Use `/model --session` (or `/model -s`) to change the model, reasoning effort, or context window for **just the current session**, leaving global settings unchanged. This is ideal for one-off experiments where you want a different model without permanently changing your configuration:
+
+```
+/model --session                    # open model picker for the current session only
+/model -s claude-opus-4-5           # switch to a specific model for this session
+```
+
+*(v1.0.74+)* Use `/model --plan` (or `/model plan`) to pick a model used specifically **while in plan mode**. Pass a model ID to set it, `off` to clear, or no argument to open the picker. The plan-mode model reverts to the session model when you leave plan mode:
+
+```
+/model --plan                       # open model picker for plan mode
+/model --plan claude-haiku-4-5      # use a fast model for planning
+/model --plan off                   # clear the plan-mode model override
+```
+
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
 
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
@@ -541,7 +556,7 @@ The `/cd` command changes the working directory for the current session. Since v
 
 This is useful when you have multiple backgrounded sessions each focused on a different project directory.
 
-The `/worktree` command (v1.0.61+, also aliased `/move`) creates a new git worktree and switches into it, moving any uncommitted changes along. This lets you start working on a parallel branch without leaving your current terminal session:
+The `/worktree` command (v1.0.61+) creates a new git worktree and switches into it, **leaving your uncommitted changes behind** in the current branch. Use this when you want to start parallel work on a new branch with a clean slate:
 
 ```
 /worktree my-feature-branch
@@ -555,7 +570,18 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
 
-After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+The `/move` command *(v1.0.72+)* is the companion to `/worktree` — it creates a new git worktree and **carries your uncommitted changes into it**. Use `/move` when you have work in progress that you want to continue on a new branch:
+
+```
+/move my-feature-branch
+```
+
+| Command | What it does with uncommitted changes |
+|---------|--------------------------------------|
+| `/worktree` | Leaves them behind in the current branch |
+| `/move` | Carries them into the new worktree |
+
+After either command runs, the session is inside the new worktree. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
@@ -743,6 +769,8 @@ copilot --plan          # start in plan mode (propose without executing)
 ```
 
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
+
+> **Plan mode improvements (v1.0.74+)**: Plan mode now **hard-blocks built-in tool calls that would modify the workspace** — the agent cannot edit files or run mutating shell commands while planning. Planning artifacts written to the session folder (e.g., `~/.copilot/session-state/<sessionId>/files/`) are still allowed. This makes plan mode a safe, read-only proposal phase where you can review the agent's intent before approving execution.
 
 The `--max-autopilot-continues` flag controls how many times Copilot can automatically continue in autopilot mode before pausing for confirmation. The default is 5:
 

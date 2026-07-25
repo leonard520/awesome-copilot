@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-25
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -31,7 +31,7 @@ A plugin bundles one or more of the following components:
 | **Custom Agents** | Specialized AI assistants with tailored expertise | `agents/*.agent.md` |
 | **Skills** | Discrete callable capabilities with bundled resources | `skills/*/SKILL.md` |
 | **Hooks** | Event handlers that intercept agent behavior | `hooks.json` or `hooks/` |
-| **MCP Servers** | Model Context Protocol integrations for external tools | `.mcp.json` or `.github/mcp.json` |
+| **MCP Servers** | Model Context Protocol integrations for external tools | `.mcp.json` or `.github/mcp.json` (also `mcp.json` via Open Plugin Spec v1, v1.0.74+) |
 | **LSP Servers** | Language Server Protocol integrations | `lsp.json` or `.github/lsp.json` |
 | **Extensions** | IDE extensions installable via the plugin marketplace (v1.0.62+) | `extensions/` |
 
@@ -73,6 +73,8 @@ The `plugin.json` manifest declares what the plugin contains:
   ]
 }
 ```
+
+> **Open Plugin Spec v1 (v1.0.74+)**: GitHub Copilot CLI now supports **Open Plugin Spec v1** plugin manifests. If a plugin includes an `mcp.json` configuration file, it is automatically discovered and loaded alongside the plugin's agents and skills — no extra configuration needed. This makes it easier to share plugins that bundle MCP server configurations using the emerging open standard.
 
 ## Why Use Plugins?
 
