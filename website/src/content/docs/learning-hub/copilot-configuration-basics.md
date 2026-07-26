@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-26
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -449,6 +449,8 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
 
+**Recently added models**: **Claude Opus 5** *(v1.0.75+)* and **Gemini 3.6 Flash** *(v1.0.74+)* are now available in the model picker. Claude Opus 5 is Anthropic's most capable model for complex reasoning tasks. Gemini 3.6 Flash is a fast, cost-effective option from Google optimized for high-throughput use cases.
+
 ### CLI Session Commands
 
 The `/settings` command (v1.0.61+) opens an interactive dialog to browse and edit all user settings in one place. Use it to discover available settings, toggle options, and update values without manually editing your config file:
@@ -469,6 +471,26 @@ The settings dialog supports search — type to filter settings by name. Changes
 ```
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
+
+*(v1.0.72+)* The **`/model --session`** flag (also `-s`) changes the model, reasoning effort, or context window for just the **current session**, leaving your global and repository-level settings unchanged. This is useful when you want to try a different model for a single task without affecting other sessions:
+
+```
+/model --session claude-opus-4-5   # switch to a different model for this session only
+/model -s                           # open the model picker scoped to this session
+/model -s off                       # clear the session-level model override
+```
+
+When the session ends, the override is discarded. Your persisted model preference is restored for the next session.
+
+*(v1.0.74+)* The **`/model plan`** subcommand (also `/model --plan`) lets you designate a separate model to use while in **plan mode**. This allows you to use a faster or more cost-effective model for planning proposals while keeping a more capable model for execution:
+
+```
+/model plan                         # open the model picker for plan mode
+/model --plan claude-haiku-4-5      # set a specific model for plan mode
+/model --plan off                   # clear the plan-mode model (revert to session model)
+```
+
+When you leave plan mode, the model automatically reverts to your session model.
 
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
@@ -630,6 +652,8 @@ Use `/diagnose` when a session is behaving unexpectedly — it inspects session 
 **Background running tasks**: Press **Ctrl+X → B** to move the current running task or shell command to the background. The task continues executing while you can type a new message or review earlier output. This is useful for long-running commands where you want to interact with the agent while waiting for the result.
 
 **Shell command history in normal mode** (v1.0.65+): The **↑/↓** arrow keys and **Ctrl+R** reverse search now include past shell commands (commands run with `!`) while you are in normal (non-shell) input mode. Previously you had to type `!` to enter shell mode before history worked. Now you can recall and re-run a shell command without switching modes first — useful for quickly repeating a build, test, or diagnostic command from earlier in the session.
+
+**`$` shell shortcut** (v1.0.72+): Type `$` at an empty prompt to instantly open an interactive shell in the current session directory — no need to type `!` first. Enable this shortcut with `/settings shellShortcut on` (it is off by default). Once enabled, pressing `$` opens the shell even while the agent is working, giving you quick access to a terminal at any point in the session.
 
 **Inline image rendering** (v1.0.64+): The CLI can display images inline in the terminal when your terminal supports it. If an MCP tool, agent, or attachment returns an image, it is rendered directly in the conversation timeline rather than shown as a file path or URL. This works in terminals with image protocol support (such as iTerm2, Kitty, Wezterm, and tmux with appropriate configuration).
 
