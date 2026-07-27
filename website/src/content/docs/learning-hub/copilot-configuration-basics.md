@@ -3,10 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
-estimatedReadingTime: '10 minutes'
-tags:
-  - configuration
+lastUpdated: 2026-07-27
   - setup
   - fundamentals
 relatedArticles:
@@ -449,6 +446,8 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
 
+**Recently added models**: **Claude Opus 5** (v1.0.75+) and **gemini-3.6-flash** (v1.0.74+) are now available in the model picker. Claude Opus 5 is Anthropic's most capable model for complex reasoning tasks; gemini-3.6-flash offers a fast, cost-efficient option for high-throughput workflows.
+
 ### CLI Session Commands
 
 The `/settings` command (v1.0.61+) opens an interactive dialog to browse and edit all user settings in one place. Use it to discover available settings, toggle options, and update values without manually editing your config file:
@@ -743,6 +742,16 @@ copilot --plan          # start in plan mode (propose without executing)
 ```
 
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
+
+**Plan mode model selection (v1.0.74+)**: Use `/model plan` (or `/model --plan`) to choose a dedicated model for plan mode — useful when you want a faster or cheaper model for planning proposals and a more capable model for execution. Pass a model ID to set it, `off` to clear it, or no argument to open the interactive picker. The plan-mode model reverts to the session model when you leave plan mode:
+
+```
+/model plan                  # open model picker for plan mode
+/model plan claude-haiku-4   # set a specific model for plan mode
+/model --plan off            # clear the plan-mode model override
+```
+
+**Plan mode planning artifacts (v1.0.74+)**: Plan mode now allows Copilot to create planning artifacts in your session folder (e.g., `~/.copilot/session-state/`), while still blocking file mutations outside that folder. This means agents can write plan notes and task breakdowns to the session folder without requiring elevated permissions.
 
 The `--max-autopilot-continues` flag controls how many times Copilot can automatically continue in autopilot mode before pausing for confirmation. The default is 5:
 
