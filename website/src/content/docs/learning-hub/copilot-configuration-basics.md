@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-28
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -223,7 +223,7 @@ The `~/.agents/skills/` path aligns with the VS Code GitHub Copilot for Azure ex
 
 | Field | Description | Example values |
 |-------|-------------|----------------|
-| `model` | The AI model to use for this repository | `"claude-sonnet-4"`, `"gpt-4.1"`, `"claude-sonnet-5"` |
+| `model` | The AI model to use for this repository | `"claude-sonnet-4"`, `"gpt-4.1"`, `"claude-sonnet-5"`, `"claude-opus-5"`, `"gemini-3.6-flash"` |
 | `effortLevel` | Reasoning effort level | `"low"`, `"medium"`, `"high"` |
 | `contextTier` | How much context to include | `"default"`, `"full"` |
 
@@ -469,6 +469,17 @@ The settings dialog supports search — type to filter settings by name. Changes
 ```
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
+
+**Plan mode model** *(v1.0.74+)*: You can set a separate model specifically for use during plan mode. This lets you use a faster or more cost-effective model while Copilot is in planning mode, automatically reverting to your session model when you leave plan mode:
+
+```
+/model plan             # open the model picker scoped to plan mode
+/model --plan           # same as above (flag form)
+/model plan claude-haiku-4   # set a specific model for plan mode directly
+/model plan off         # clear the plan-mode model (revert to session model)
+```
+
+This is useful when you want a quick, low-cost model for iterative planning and then a more capable model for execution. The plan-mode model applies only while you are in `/plan` mode — it does not affect model selection in interactive or autopilot modes.
 
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
