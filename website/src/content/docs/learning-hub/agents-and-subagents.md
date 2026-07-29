@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-07-29
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -60,6 +60,18 @@ Subagents work especially well when you need to:
 - compare multiple approaches across different models
 
 If all of the work happens in one small file and does not need decomposition, a subagent may be unnecessary. The benefit appears when delegation reduces context pressure or lets multiple tracks run independently.
+
+## Monitoring Subagents in VS Code
+
+As of VS Code 1.131, you can see richer status information for each running subagent directly in the Agents panel:
+
+- **Model**: which AI model the subagent is using
+- **Elapsed time**: how long the subagent has been running
+- **Active tool**: which tool it is currently executing
+
+This makes it easy to track progress across parallel subagents and spot ones that are taking unexpectedly long without leaving the panel.
+
+Additionally, the VS Code 1.130 Agents window now supports **worktrees** for all agent providers (Copilot, Claude, Codex), enabling parallel agent sessions that each operate in their own isolated branch copy—consistent with the worktree model in the GitHub Copilot app.
 
 ## Launch subagents in VS Code
 

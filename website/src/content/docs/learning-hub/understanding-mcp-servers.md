@@ -3,7 +3,7 @@ title: 'Understanding MCP Servers'
 description: 'Learn how Model Context Protocol servers extend GitHub Copilot with access to external tools, databases, and APIs.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-29
 estimatedReadingTime: '8 minutes'
 tags:
   - mcp
@@ -266,7 +266,28 @@ This enables sophisticated patterns like MCP servers that orchestrate multi-step
 
 > **Note**: Sampling requires explicit user approval every time a server requests inference. This is a security boundary — MCP servers cannot silently consume your AI quota or exfiltrate context without your knowledge.
 
-## Finding MCP Servers
+## Assisted Tool Approvals in VS Code
+
+VS Code 1.130 introduced **assisted tool approvals** (`chat.assistedPermissions.enabled`). When Copilot encounters a tool invocation that requires your permission — such as running a shell command, editing a file, or calling an external MCP tool — it now provides richer contextual guidance alongside the approval dialog:
+
+- A plain-language explanation of what the tool call will do
+- The specific arguments it will use
+- Guidance on whether the action is typically safe or worth reviewing carefully
+
+This is especially helpful with MCP tools, where the tool's purpose may not be obvious from its name alone. Assisted approvals make it easier to make an informed decision without needing to look up the server documentation separately.
+
+To enable:
+
+```json
+// .vscode/settings.json
+{
+  "chat.assistedPermissions.enabled": true
+}
+```
+
+> **Note**: Assisted tool approvals are a VS Code feature. The Copilot CLI and GitHub.com coding agent have their own tool-permission models (see hooks for the CLI equivalent).
+
+
 
 The MCP ecosystem is growing rapidly. Here are key resources:
 
