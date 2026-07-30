@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-30
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -449,6 +449,26 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
 
+**Recently added models**: Several new models were added in late July 2026:
+- **Claude Opus 5** (v1.0.75) — Available via the `opus` alias or by full model name
+- **grok-4.5** (v1.0.76) — xAI's latest model, selectable via the model picker
+- **gemini-3.6-flash** (v1.0.74) — Google's fast Gemini variant for high-throughput tasks
+
+**Per-session model override** *(v1.0.72+)*: Use `/model --session` (or `/model -s`) to change the model, reasoning effort, or context window for just the current session, leaving your global settings unchanged. This is useful when you want to try a more powerful model for a specific complex task without affecting your default configuration:
+
+```
+/model --session          # open model picker scoped to this session only
+/model -s claude-opus-5   # switch current session to Claude Opus 5
+```
+
+**Plan-mode model** *(v1.0.74+)*: Use `/model plan` (or `/model --plan`) to set a different model specifically for when you're in plan mode. This lets you use a lighter model for planning while keeping your preferred model for execution:
+
+```
+/model plan               # open picker to choose the plan-mode model
+/model plan claude-haiku-4  # use Haiku for planning steps
+/model plan off           # clear the plan-mode model (reverts to session model)
+```
+
 ### CLI Session Commands
 
 The `/settings` command (v1.0.61+) opens an interactive dialog to browse and edit all user settings in one place. Use it to discover available settings, toggle options, and update values without manually editing your config file:
@@ -506,6 +526,19 @@ The `/session delete` command removes sessions you no longer need:
 You can also press **x** on a highlighted session in the session picker (`--resume`) to delete it directly from the list.
 
 In the session picker, press **`s`** to cycle the sort order: relevance, last used, created, or name. The picker also shows the branch name and idle/in-use status for each session.
+
+**Sessions sidebar** *(v1.0.72+, experimental)*: A persistent sidebar for managing multiple concurrent sessions — switch between them, spawn new ones, and see their status at a glance. Enable it with:
+
+```
+/experimental on
+```
+
+Once experimental mode is on, the sidebar appears on the side of your terminal window. Use arrow keys to navigate sessions, **n** to spawn a new session, and **x** twice to close the selected session. You can configure it with these settings:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `sidebar.hoverFocus` | `false` | Hover to focus the sidebar (off by default since v1.0.76) |
+| `sidebar.accentActiveSession` | `true` | Highlight the active session card with an accent color (since v1.0.76) |
 
 The `/rewind` command opens a timeline picker that lets you roll back the conversation to any earlier point in history, reverting both the conversation and any file changes made after that point. You can also trigger it by pressing **double-Esc**:
 

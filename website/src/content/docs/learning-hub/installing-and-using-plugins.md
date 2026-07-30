@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-30
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -221,6 +221,37 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+### Enabling and Disabling Plugin Components *(v1.0.76+)*
+
+You can granularly enable or disable individual components within your installed plugins without uninstalling them. The `/plugins` command (inside an interactive session) now supports `enable` and `disable` actions targeting specific types of components:
+
+```
+# Disable a specific plugin
+/plugins disable my-plugin --plugin
+
+# Enable or disable a specific agent, instruction, LSP server, or hook
+/plugins disable my-plugin --mcp my-mcp-server
+/plugins enable my-plugin --skill my-skill
+```
+
+This makes it easy to turn off a hook or MCP server that's causing issues without removing the whole plugin — and re-enable it when you're ready.
+
+### Installing Skills Directly *(v1.0.72+)*
+
+You can install individual skills (without a full plugin) directly from a local directory, URL, or ZIP file:
+
+```bash
+copilot plugins install --skill ./my-skill/
+copilot plugins install --skill https://example.com/skill.zip
+copilot plugins install --skill ./my-skill/ --scope project  # install to current repository
+```
+
+This is useful when you want to share a skill across projects without building a full plugin. See [Creating Effective Skills](../creating-effective-skills/) for how to author skills.
+
+### Open Plugin Spec Support *(v1.0.74+)*
+
+Copilot CLI now supports **Open Plugin Spec v1** plugin manifests and `mcp.json` configuration files. This allows plugins authored using the OpenAI or Anthropic plugin specification to be installed and used directly, without requiring conversion to the Copilot plugin format.
 
 ### Loading Plugins from a Local Directory
 
