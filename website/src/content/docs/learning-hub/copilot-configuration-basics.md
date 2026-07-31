@@ -3,8 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
-estimatedReadingTime: '10 minutes'
+lastUpdated: 2026-07-31
 tags:
   - configuration
   - setup
@@ -717,6 +716,14 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
 
+The `/permissions` command *(v1.0.78+)* lets you switch between approval modes mid-session without restarting:
+
+```
+/permissions          # open the permissions dialog to switch approval modes
+```
+
+Use this to move between interactive (confirm every tool use), autopilot (approve all), and auto (LLM-judged) modes on the fly. This replaces the need to remember separate `/allow-all` and `/autopilot` commands when you just want to change how the agent handles approvals.
+
 The `--effort` flag (shorthand for `--reasoning-effort`) controls how much computational reasoning the model applies to a request:
 
 ```bash
@@ -760,6 +767,8 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+> **`allowDevToolCaches` sandbox setting (v1.0.78+)**: A new sandbox setting, `allowDevToolCaches`, is enabled by default. It grants sandboxed builds access to toolchain caches, registries, and installs (npm, pip, cargo, etc.) so that builds work inside the sandbox without extra configuration. Set it to `false` to opt out and run with a fully isolated build environment.
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
