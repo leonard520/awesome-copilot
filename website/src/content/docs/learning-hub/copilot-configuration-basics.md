@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-01
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -223,7 +223,7 @@ The `~/.agents/skills/` path aligns with the VS Code GitHub Copilot for Azure ex
 
 | Field | Description | Example values |
 |-------|-------------|----------------|
-| `model` | The AI model to use for this repository | `"claude-sonnet-4"`, `"gpt-4.1"`, `"claude-sonnet-5"` |
+| `model` | The AI model to use for this repository | `"claude-sonnet-4"`, `"gpt-4.1"`, `"claude-sonnet-5"`, `"claude-opus-5"`, `"grok-4.5"` |
 | `effortLevel` | Reasoning effort level | `"low"`, `"medium"`, `"high"` |
 | `contextTier` | How much context to include | `"default"`, `"full"` |
 
@@ -406,7 +406,26 @@ Settings: File → Settings → Tools → GitHub Copilot
 
 ### GitHub Copilot CLI
 
-Configuration file: `~/.copilot-cli/config.json`
+#### Authentication
+
+To log in, run:
+
+```bash
+copilot login
+```
+
+*(v1.0.77+)* On **local interactive terminals**, `copilot login` now defaults to a **browser-based (web) OAuth flow**: your default browser opens automatically, you approve access, and the CLI completes authentication. On **remote or headless terminals** (SSH, CI, containers), the device-code flow remains the default.
+
+You can override the flow explicitly:
+
+```bash
+copilot login --web-flow     # force browser-based OAuth
+copilot login --device-code  # force device code (copy/paste)
+```
+
+You can also pick a login method interactively from within a session using `/login`.
+
+
 
 ```json
 {
@@ -448,6 +467,8 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+**Recently added models** (v1.0.75–v1.0.76): `claude-opus-5` and `grok-4.5` are now available. Use them by name in `/model` or via the `model` field in `.github/copilot/settings.json`.
 
 ### CLI Session Commands
 
@@ -506,6 +527,14 @@ The `/session delete` command removes sessions you no longer need:
 You can also press **x** on a highlighted session in the session picker (`--resume`) to delete it directly from the list.
 
 In the session picker, press **`s`** to cycle the sort order: relevance, last used, created, or name. The picker also shows the branch name and idle/in-use status for each session.
+
+The **Sessions sidebar** *(v1.0.76+, experimental)* adds a persistent side panel listing all your concurrent sessions. Enable it with:
+
+```
+/experimental on
+```
+
+Once enabled, the sidebar shows each session's status at a glance. Use the arrow keys or click to switch between sessions, press **n** to spawn a new session, and press **x** twice to close one. The sidebar is navigable by keyboard and mouse, and persists the session list across restarts. To configure sidebar behaviour, see the `sidebar.hoverFocus` and `sidebar.accentActiveSession` settings in `/settings`.
 
 The `/rewind` command opens a timeline picker that lets you roll back the conversation to any earlier point in history, reverting both the conversation and any file changes made after that point. You can also trigger it by pressing **double-Esc**:
 
@@ -665,6 +694,14 @@ The `/usage` command displays session metrics such as the number of tokens consu
 /usage
 ```
 
+The `/limits predict` command *(v1.0.76+)* analyzes your recent session history and suggests an appropriate AI-credit limit for the current session based on similar past sessions. Use it before a long-running task to set a budget:
+
+```
+/limits predict
+```
+
+This is especially useful in autopilot mode, where the agent may consume credits continuously without prompting. After reviewing the prediction, set the limit via `/settings sessionLimits`.
+
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
 ```
@@ -716,6 +753,20 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 > **Auto allow-all mode (v1.0.69+)**: In addition to the standard allow-all mode (which approves everything), the CLI now supports an **auto allow-all** mode that uses an LLM judge to evaluate each tool request. When enabled, the judge automatically approves requests it evaluates as acceptable, and asks you for manual confirmation only for requests it considers risky. This gives you a middle ground between full autopilot and fully supervised operation — most routine actions proceed automatically while unusual or potentially dangerous actions still surface for your review. As of v1.0.69-3, this mode requires experimental features to be enabled — use `/experimental on` or start the CLI with `--experimental` — then activate it with `/allow-all auto`. The previous `AUTO_APPROVAL` environment variable approach has been removed in favour of experimental mode.
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
+
+The `/permissions` command *(v1.0.78+)* provides a single unified way to switch between all three tool-approval modes:
+
+```
+/permissions          # open the permissions mode picker
+```
+
+This replaces the need to remember separate commands like `/allow-all on`, `/allow-all auto`, or `/autopilot` — the picker presents all modes in one place. The three modes are:
+
+| Mode | Behaviour |
+|------|-----------|
+| **Interactive** | Agent pauses and asks for confirmation before each tool use (default) |
+| **Auto** | An LLM judge approves routine requests automatically; only risky actions surface for review |
+| **Autopilot** | Agent runs all tools without confirmation (equivalent to `/allow-all on`) |
 
 The `--effort` flag (shorthand for `--reasoning-effort`) controls how much computational reasoning the model applies to a request:
 
