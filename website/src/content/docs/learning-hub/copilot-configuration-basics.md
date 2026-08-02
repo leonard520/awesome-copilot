@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-02
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -429,6 +429,8 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
 | `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
+| `sidebar.hoverFocus` | Enable hover-to-focus in the split-view sessions sidebar; off by default since v1.0.76 |
+| `sidebar.accentActiveSession` | Accent the active session card in the sidebar; on by default since v1.0.76 |
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
@@ -448,6 +450,8 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+**grok-4.5 model** (v1.0.76+): xAI's `grok-4.5` model is now available as a selectable model in Copilot CLI. You can choose it from the model picker or set it via the `model` config key.
 
 ### CLI Session Commands
 
@@ -530,6 +534,19 @@ The `/fork` command (v1.0.45+) copies the current session into a **new independe
 /fork "my-experiment"    # fork with a custom name (v1.0.47+)
 /branch                  # alias for /fork (v1.0.64+)
 ```
+
+**Sessions sidebar** *(v1.0.76+, experimental)*: The CLI includes an experimental **split-view sessions sidebar** for managing multiple concurrent sessions without leaving your current window. Enable it with:
+
+```
+/experimental on
+```
+
+Once enabled, the sidebar appears alongside your active session and shows all running sessions with their status. You can switch between sessions, spawn new ones, and see at a glance what each session is doing. The sidebar's behavior is configurable:
+
+- `sidebar.hoverFocus` — hover over a session card to focus it (off by default; opt in to enable)
+- `sidebar.accentActiveSession` — highlight the active session card with an accent color (on by default; opt out to disable)
+
+The sessions sidebar is distinct from the `/new` and backgrounded session workflow — it provides a visual, persistent panel rather than requiring you to switch contexts manually.
 
 After forking, the new session is immediately active. Both sessions share the same history up to the fork point but accumulate changes independently from that moment forward. Use `/fork` to experiment with a risky refactor without abandoning your current working session. Since v1.0.47, forked sessions display their **origin session** name in the sessions dialog, making it easy to trace which session a fork came from.
 
@@ -626,6 +643,10 @@ The `/diagnose` command (v1.0.64+) analyzes the current session's logs and surfa
 Use `/diagnose` when a session is behaving unexpectedly — it inspects session logs and reports what it finds, making it easier to share diagnostics with support or understand what happened internally.
 
 **Keyboard shortcuts for queuing messages**: Use **Ctrl+Q** or **Ctrl+Enter** to queue a message (send it while the agent is still working). **Ctrl+D** no longer queues messages — it now has its default terminal behavior. If you have muscle memory for Ctrl+D queuing, switch to Ctrl+Q.
+
+**Queue manager** *(v1.0.76+)*: When you have multiple messages queued, the **queue manager** (also called the *staff*) lets you reorder, edit, remove, repeat, or immediately send individual queued messages. Open it from within an active session to take fine-grained control of the upcoming message queue — useful when you realize the order of queued tasks matters or you want to revise a queued prompt before it runs.
+
+**Ctrl+G to edit ask_user answers** *(v1.0.77+)*: When the agent presents an `ask_user` freeform prompt, press **Ctrl+G** to open your system editor (the same editor used for commit messages) to draft a longer or more structured response. The editor opens with the current draft, and saving it populates the answer back into the CLI without closing the prompt.
 
 **Background running tasks**: Press **Ctrl+X → B** to move the current running task or shell command to the background. The task continues executing while you can type a new message or review earlier output. This is useful for long-running commands where you want to interact with the agent while waiting for the result.
 
@@ -761,6 +782,8 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
 
+**Enterprise MDM sandbox enforcement** *(v1.0.76–v1.0.77)*: Enterprise administrators can enforce a restrictive sandbox floor using macOS or Windows native MDM (Mobile Device Management) settings. Managed settings can only tighten — never loosen — the user's sandbox policy. The `/sandbox` dialog surfaces MDM-managed values with locked fields and managed filesystem paths, so administrators can confirm what is enforced and users understand which settings are controlled centrally.
+
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
 ```bash
@@ -783,6 +806,18 @@ copilot --config-dir ~/.my-copilot-config
 ```
 
 Set `COPILOT_HOME` in your shell profile to use a custom config directory across all sessions. This is especially useful when running multiple Copilot configurations for different projects or teams.
+
+### Authentication and Login
+
+The `copilot login` command authenticates with GitHub. As of **v1.0.77**, the default login flow on local interactive terminals is a **browser-based (web) OAuth flow** — your browser opens automatically to complete authentication:
+
+```bash
+copilot login           # uses web OAuth by default on local terminals
+copilot login --web-flow    # force the web OAuth flow
+copilot login --device-code # force the device code flow (default on remote/headless terminals)
+```
+
+You can also select the login method interactively via the `/login` slash command inside a session. Device code remains the default for remote, SSH, or headless environments where a browser cannot be opened.
 
 ### Shell Completion
 
