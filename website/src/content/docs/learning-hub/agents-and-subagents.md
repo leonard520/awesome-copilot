@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-08-03
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -133,6 +133,23 @@ The important behavior is different from a single chat turn:
 - subagents share the same filesystem, so overlapping writes should be avoided
 
 That makes `/fleet` a practical way to launch subagents even if you are not authoring custom agent files yourself.
+
+### Sessions sidebar
+
+*(Experimental, v1.0.76+)* The **Sessions sidebar** provides a split-view panel for managing multiple concurrent sessions side-by-side. Enable it with experimental mode:
+
+```
+/experimental on
+```
+
+Once enabled, the sidebar shows all your active sessions as cards — you can switch between them, spawn new sessions, and see each session's status at a glance without leaving the terminal. The active session card is highlighted, and you can optionally enable hover-to-focus with `sidebar.hoverFocus`.
+
+The Sessions sidebar is particularly useful when running `/fleet` or other multi-session workflows: you can keep an eye on several subagents working in parallel and jump into any of them to check progress or provide guidance.
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `sidebar.hoverFocus` | off | Focus a session card on hover (opt-in) |
+| `sidebar.accentActiveSession` | on | Highlight the active session card with an accent color |
 
 ### Rubber-duck agent
 

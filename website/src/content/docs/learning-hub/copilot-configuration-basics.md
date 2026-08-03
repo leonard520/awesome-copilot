@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-03
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -415,6 +415,17 @@ Configuration file: `~/.copilot-cli/config.json`
 }
 ```
 
+**Authentication**: Running `copilot login` on a local interactive terminal now defaults to a **browser-based (web) OAuth flow** *(v1.0.77+)* — your browser opens and you authorize in a familiar web interface. Remote and headless environments continue to use the device code flow. You can force a specific mode:
+
+```bash
+copilot login --web-flow    # force browser-based login
+copilot login --device-code # force device code flow
+```
+
+Or pick your preferred method from the interactive `/login` command inside a session.
+
+> **Tip**: You can also check and switch your active login directly from the `/login` command in a running session without restarting.
+
 CLI settings use **camelCase** naming. Key settings added in recent releases:
 
 | Setting | Description |
@@ -429,6 +440,8 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
 | `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
+
+> **Tip**: As of v1.0.78+, Copilot CLI warns you at startup if your `settings.json` contains unknown top-level keys (such as misspelled setting names) instead of silently ignoring them. This makes it much easier to catch configuration typos before they cause confusing behavior.
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
@@ -557,6 +570,14 @@ This creates a branch named from your task description and begins working on it 
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
+The `/new-worktree` command *(v1.0.78+)* is a companion to `/worktree` that creates a new git worktree **and** starts a brand-new conversation in it — rather than moving the current session into the worktree. This makes it easy to spin up a completely fresh session scoped to a new branch without leaving your existing session:
+
+```
+/new-worktree my-feature-branch
+```
+
+Use `/worktree` when you want to continue the current session in a new branch, and `/new-worktree` when you want a clean slate — a new conversation with no prior history — scoped to a new worktree.
+
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
 ```
@@ -665,6 +686,14 @@ The `/usage` command displays session metrics such as the number of tokens consu
 /usage
 ```
 
+The `/limits predict` command *(v1.0.76+)* analyzes your past sessions and suggests an appropriate AI-credit limit for the current session based on similar historical sessions:
+
+```
+/limits predict
+```
+
+Use this as a starting point when setting `sessionLimits` in your config — rather than guessing, `/limits predict` gives you a data-driven estimate based on how much your comparable sessions have consumed. After reviewing the suggestion, you can set it with `/settings` or by updating your `config.json`.
+
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
 ```
@@ -710,6 +739,14 @@ The `/autopilot` command (v1.0.45+) is a quick in-session toggle that switches b
 ```
 
 Use `/autopilot` when you want to flip between supervised and unsupervised operation mid-session without typing out the full `/allow-all on` or `/allow-all off` commands.
+
+The `/permissions` command *(v1.0.78+)* opens an interactive panel for switching between **approval modes** without needing to remember the exact syntax of `/allow-all`:
+
+```
+/permissions      # open the approval mode switcher
+```
+
+The panel lets you choose between interactive mode (confirm every tool use), auto mode (AI judge approves safe actions automatically), and allow-all mode (approve everything). Use `/permissions` as a discoverable alternative to the manual `/allow-all on|off|auto` commands, especially when you want to understand all available modes at a glance.
 
 > **Enhanced autopilot (v1.0.64+)**: When autopilot mode is active — including when launched with `--autopilot` at startup or during automatic continuation turns — the agent automatically handles elicitation dialogs, `ask_user` prompts, sampling requests, and permission prompts without surfacing them as interactive dialogs. This means long-running automated sessions can proceed end-to-end without manual confirmation steps.
 
@@ -760,6 +797,16 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+**`allowDevToolCaches` sandbox setting** *(v1.0.78+)*: When the sandbox is enabled, the `allowDevToolCaches` setting (on by default) grants sandboxed processes read/write access to common toolchain caches — package registries, npm/pip/go caches, and language runtime installs. This means sandboxed builds work without extra configuration for most projects. Set `allowDevToolCaches: false` in your config only if you need strict cache isolation:
+
+```json
+{
+  "sandbox": {
+    "allowDevToolCaches": false
+  }
+}
+```
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
